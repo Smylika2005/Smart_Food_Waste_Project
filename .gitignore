@@ -55,8 +55,8 @@ venv/
 env/
 
 # Test reports and screenshots
-**/reports/*.xlsx
-**/reports/**/*.xlsx
+# **/reports/*.xlsx
+# **/reports/**/*.xlsx
 **/screenshots/*.png
 **/screenshots/**/*.png
 
