@@ -1,0 +1,17 @@
+{
+  "name": "smart-food-waste-selenium-e2e",
+  "version": "1.0.0",
+  "description": "Selenium E2E tests with Excel reporting for Smart Food Waste Web Application",
+  "main": "e2e_selenium_test.js",
+  "scripts": {
+    "test": "node e2e_selenium_test.js"
+  },
+  "dependencies": {
+    "chromedriver": "^130.0.0",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "selenium-webdriver": "^4.23.0"
+  },
+  "author": "Antigravity",
+  "license": "ISC"
+}

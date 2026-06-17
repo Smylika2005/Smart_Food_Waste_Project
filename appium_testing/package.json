@@ -1,0 +1,16 @@
+{
+  "name": "smart-food-waste-appium-testing",
+  "version": "1.0.0",
+  "description": "E2E Appium tests with automated Excel reporting for Smart Food Waste Android application",
+  "main": "e2e_test.js",
+  "scripts": {
+    "test": "node e2e_test.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "webdriverio": "^8.39.0"
+  },
+  "author": "Antigravity",
+  "license": "ISC"
+}
