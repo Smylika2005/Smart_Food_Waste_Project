@@ -902,6 +902,29 @@ def main():
 
     print("\n[INFO] Generating Excel Analysis Report (openpyxl)...")
     generate_excel_report(results, summary, report_path)
+
+    github_summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    if github_summary_file:
+        try:
+            with open(github_summary_file, "a", encoding="utf-8") as f:
+                md = f"\n## 🐍 Python Appium (Android) E2E Test Summary\n"
+                md += f"| Metric | Value |\n| --- | --- |\n"
+                md += f"| **Total Test Cases** | {summary['total']} |\n"
+                md += f"| **Passed** | ✅ {summary['passed']} |\n"
+                md += f"| **Failed** | ❌ {summary['failed']} |\n"
+                md += f"| **Pass Rate** | **{summary['passRate']}%** |\n"
+                md += f"| **Duration** | {(summary['durationMs'] / 1000):.1f}s |\n\n"
+                
+                md += f"<details>\n<summary>🔍 Click here to view all {len(results)} detailed test results</summary>\n\n"
+                md += f"| ID | Module | Description | Status | Actual |\n| --- | --- | --- | --- | --- |\n"
+                for r in results:
+                    status_icon = "✅ PASS" if r["status"] == "PASS" else "❌ FAIL"
+                    md += f"| {r['tcId']} | {r['module']} | {r['description']} | {status_icon} | {r['actual']} |\n"
+                md += f"\n</details>\n"
+                f.write(md)
+        except Exception as e:
+            print(f"[WARN] Error writing to GITHUB_STEP_SUMMARY: {e}")
+
     print(f"\n[INFO] Screenshots : {screenshots_dir}")
     print(f"[INFO] Reports     : {reports_dir}")
     print("\n[OK] All done! Open the Excel report for complete analysis.\n")

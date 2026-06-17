@@ -1196,6 +1196,30 @@ async function main() {
 
   console.log('\n📊 Generating Excel Analysis Report...');
   await generateExcelReport(results, summary, reportPath);
+
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    try {
+      let md = `\n## 🌐 Node.js Selenium (Web) E2E Test Summary\n`;
+      md += `| Metric | Value |\n| --- | --- |\n`;
+      md += `| **Total Test Cases** | ${summary.total} |\n`;
+      md += `| **Passed** | ✅ ${summary.passed} |\n`;
+      md += `| **Failed** | ❌ ${summary.failed} |\n`;
+      md += `| **Pass Rate** | **${summary.passRate}%** |\n`;
+      md += `| **Duration** | ${(summary.durationMs / 1000).toFixed(1)}s |\n\n`;
+      
+      md += `<details>\n<summary>🔍 Click here to view all ${results.length} detailed test results</summary>\n\n`;
+      md += `| ID | Module | Description | Status | Actual |\n| --- | --- | --- | --- | --- |\n`;
+      for (const r of results) {
+        const statusIcon = r.status === 'PASS' ? '✅ PASS' : '❌ FAIL';
+        md += `| ${r.tcId} | ${r.module} | ${r.description} | ${statusIcon} | ${r.actual} |\n`;
+      }
+      md += `\n</details>\n`;
+      fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+    } catch (err) {
+      console.error('Error writing to GITHUB_STEP_SUMMARY:', err);
+    }
+  }
+
   console.log(`\n📁 Screenshots : ${screenshotsDir}`);
   console.log(`📁 Reports     : ${reportsDir}`);
   console.log(`\n✅ All done! Open the Excel report for complete analysis.\n`);

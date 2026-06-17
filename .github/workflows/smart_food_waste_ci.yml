@@ -95,6 +95,24 @@ jobs:
           cd appium_testing_python
           python e2e_test.py
 
+      - name: Upload Node Appium Excel Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-appium-excel-reports
+          path: appium_testing/reports/
+
+      - name: Upload Node Selenium Excel Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-selenium-excel-reports
+          path: selenium_testing/reports/
+
+      - name: Upload Python Appium Excel Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-appium-excel-reports
+          path: appium_testing_python/reports/
+
       - name: Commit and Push Generated Excel Reports
         run: |
           git config --global user.name "github-actions[bot]"
