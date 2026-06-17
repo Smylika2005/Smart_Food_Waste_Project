@@ -145,6 +145,7 @@ class _FoodMenuPageState
     isFestival = false;
     isHoliday = false;
 
+    if (!mounted) return;
     Navigator.pop(context);
   }
 
@@ -225,7 +226,7 @@ class _FoodMenuPageState
                   label: "Weather Dropdown",
                   child: DropdownButtonFormField(
 
-                    value:
+                    initialValue:
                     selectedWeather,
 
                     items: [
@@ -414,7 +415,7 @@ class _FoodMenuPageState
 
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
 
           title:
@@ -520,8 +521,8 @@ class _FoodMenuPageState
 
                   fetchFoodItems();
 
-                  Navigator.pop(
-                      context);
+                  if (!dialogContext.mounted) return;
+                  Navigator.pop(dialogContext);
                 },
 
                 child:
