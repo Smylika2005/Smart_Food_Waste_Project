@@ -34,9 +34,11 @@ jobs:
       - name: Run Flutter Unit Tests
         run: flutter test
 
-  node-appium-validation:
-    name: NodeJS Appium Test Verification
+  e2e-testing-and-reporting:
+    name: Run E2E Test Suites & Push Excel Reports
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -46,60 +48,9 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: appium_testing/package-lock.json
-
-      - name: Install Dependencies
-        run: |
-          cd appium_testing
-          npm ci
-
-      - name: Run Appium Tests (Simulated Mode)
-        run: |
-          cd appium_testing
-          node e2e_test.js
-
-      - name: Upload Node Appium Reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: node-appium-excel-reports
-          path: appium_testing/reports/
-
-  node-selenium-validation:
-    name: NodeJS Selenium Test Verification
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Setup NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: selenium_testing/package-lock.json
-
-      - name: Install Dependencies
-        run: |
-          cd selenium_testing
-          npm ci
-
-      - name: Run Selenium Tests (Simulated Mode)
-        run: |
-          cd selenium_testing
-          node e2e_selenium_test.js
-
-      - name: Upload Node Selenium Reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: node-selenium-excel-reports
-          path: selenium_testing/reports/
-
-  python-appium-validation:
-    name: Python Appium Test Verification
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+          cache-dependency-path: |
+            appium_testing/package-lock.json
+            selenium_testing/package-lock.json
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -108,7 +59,33 @@ jobs:
           cache: 'pip'
           cache-dependency-path: appium_testing_python/requirements.txt
 
-      - name: Install Dependencies
+      - name: Clean Old Reports from Workspace & Git Tracking
+        run: |
+          git rm -f appium_testing/reports/*.xlsx || true
+          git rm -f appium_testing_python/reports/*.xlsx || true
+          git rm -f selenium_testing/reports/*.xlsx || true
+
+      - name: Install Node Appium Dependencies
+        run: |
+          cd appium_testing
+          npm ci
+
+      - name: Run Node Appium Tests (Simulated Mode)
+        run: |
+          cd appium_testing
+          node e2e_test.js
+
+      - name: Install Node Selenium Dependencies
+        run: |
+          cd selenium_testing
+          npm ci
+
+      - name: Run Node Selenium Tests (Simulated Mode)
+        run: |
+          cd selenium_testing
+          node e2e_selenium_test.js
+
+      - name: Install Python Appium Dependencies
         run: |
           cd appium_testing_python
           pip install -r requirements.txt
@@ -118,8 +95,17 @@ jobs:
           cd appium_testing_python
           python e2e_test.py
 
-      - name: Upload Python Appium Reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: python-appium-excel-reports
-          path: appium_testing_python/reports/
+      - name: Commit and Push Generated Excel Reports
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Stage the newly generated report xlsx files
+          git add appium_testing/reports/*.xlsx || true
+          git add appium_testing_python/reports/*.xlsx || true
+          git add selenium_testing/reports/*.xlsx || true
+          
+          # Commit the changes. Using [skip ci] prevents recursive workflow triggering.
+          git commit -m "Automatically update E2E Excel test reports from CI run [skip ci]" || echo "No changes to commit"
+          git push origin HEAD:main
+
